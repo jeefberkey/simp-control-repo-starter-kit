@@ -43,4 +43,4 @@ include 'simp_options'
 include 'simp'
 
 # For proper functionality, the compliance_markup list needs to be included *absolutely last*
-include compliance_markup
+# include compliance_markup # broken in hiera v4

@@ -1,1 +1,4 @@
 .vagrant/
+modules/*
+Gemfile.lock
+dist/
