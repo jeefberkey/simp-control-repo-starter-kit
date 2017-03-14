@@ -12,7 +12,8 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder '.',
     '/etc/puppetlabs/code/environments/vagrant',
     type: 'rsync',
-    rsync__exclude: ".git/"
+    rsync__exclude: ".git/",
+    rsync__auto: true
 
   config.vm.provider "virtualbox" do |vb|  #
     vb.memory = "4608"

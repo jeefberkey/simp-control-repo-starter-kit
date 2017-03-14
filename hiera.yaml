@@ -1,7 +1,6 @@
 ---
 version: 4
 datadir: hieradata
-backend: yaml
 
 # SIMP Defaults. Complete documentation can be found below.
 # https://docs.puppet.com/puppet/4.9/hiera_config_yaml_4.html
