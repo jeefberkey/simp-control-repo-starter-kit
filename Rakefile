@@ -1,5 +1,8 @@
+require 'rake/clean'
 require 'simp/rake/pupmod/helpers'
 
+CLEAN << 'modules'
+CLEAN << 'simp_modules'
 Simp::Rake::Pupmod::Helpers.new(File.dirname(__FILE__))
 
 namespace :puppetfile do
@@ -16,10 +19,9 @@ namespace :puppetfile do
     puppetfile.call
   end
 
-  task :install do
+  task :install => [:check]  do
     desc 'Run `r10k puppetfile install`'
     require 'r10k/action/puppetfile/install'
-    Rake::Task["puppetfile:check"].execute
     puppetfile = R10K::Action::Puppetfile::Install.new({
       :root => '.',
       :moduledir => nil,
@@ -28,8 +30,4 @@ namespace :puppetfile do
     puppetfile.call
   end
 
-  task :clean do
-    desc 'Empty the modules directory'
-    FileUtils.rm_rf(Dir.glob('modules/**'))
-  end
 end
