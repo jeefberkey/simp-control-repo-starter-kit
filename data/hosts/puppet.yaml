@@ -29,7 +29,6 @@ puppetdb::master::config::restart_puppet: false
 
 ### Secure SIMP Options ###
 simp_options::auditd: true
-simp_options::clamav: true
 simp_options::firewall: true
 simp_options::haveged: true
 simp_options::logrotate: true
@@ -47,3 +46,4 @@ classes:
   - 'simp::server'
   - 'simp::puppetdb'
   - 'pupmod'
+  - profiles::puppetserver

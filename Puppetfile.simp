@@ -1,3 +1,6 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
 moduledir 'simp_modules'
 
 mod 'bfraser-grafana',

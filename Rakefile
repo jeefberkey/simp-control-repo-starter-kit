@@ -5,6 +5,14 @@ CLEAN << 'modules'
 CLEAN << 'simp_modules'
 Simp::Rake::Pupmod::Helpers.new(File.dirname(__FILE__))
 
+namespace :vagrant do
+  desc 'Prepare vagrant environment'
+
+  task :install_plugins do
+    `vagrant plugin install vagrant-reload`
+  end
+end
+
 namespace :puppetfile do
   desc 'Puppetfile related tasks'
 

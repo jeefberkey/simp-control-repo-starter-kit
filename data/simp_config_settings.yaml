@@ -25,8 +25,7 @@ simp::yum::servers: ['puppet']
 simp::scenario: simp
 simp_options::rsync: false
 simp_options::clamav: false
-simp_options::pki: true
-simp_options::pki::source: '/etc/pki/simp-testing/pki'
+simp_options::pki: simp
 simp_options::trusted_nets: ['ALL']
 simp::yum::os_update_url: http://mirror.centos.org/centos/$releasever/os/$basearch/
 simp::yum::enable_simp_repos: false

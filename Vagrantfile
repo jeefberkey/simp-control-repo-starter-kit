@@ -1,8 +1,40 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-ENVIRONMENT   = ENV['VAGRANT_environment']
-ENVIRONMENT ||= 'production'
+def environment
+  penv = ENV['VAGRANT_environment']
+  penv ||= 'production'
+end
+
+deps_and_repos = <<-EOF
+  sudo yum install http://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm
+  sudo curl -s https://packagecloud.io/install/repositories/simp-project/6_X_Dependencies/script.rpm.sh | bash
+  sudo yum install -y vim git epel-release puppet-agent puppetserver
+EOF
+
+bootstrap_puppetserver = <<-EOF
+  sudo chown -R root.puppet /etc/puppetlabs/code/environments/#{environment}
+  sudo chmod -R u+rX /etc/puppetlabs/code/environments/#{environment}
+  sudo chown puppet.puppet /var/log/puppetlabs/puppetserver
+  sudo chown puppet.puppet /var/run/puppetlabs/puppetserver
+  mkdir -p /opt/puppetlabs/puppet/cache/pserver_tmp
+  sudo /opt/puppetlabs/bin/puppet apply -t /etc/puppetlabs/code/#{environment}/site/profiles/manifests/puppetserver.pp -e "include 'profiles::puppetserver','profiles::vagrant'"
+  sudo /opt/puppetlabs/bin/puppet apply -t /etc/puppetlabs/code/#{environment}/site/profiles/manifests/puppetserver.pp -e "include 'profiles::puppetserver','profiles::vagrant'"
+  true
+EOF
+
+generate_keydist = <<-EOF
+  cd /etc/puppetlabs/code/environments/production/utils/FakeCA; KEYDIST_DIR=/var/simp/environments/#{environment}/site_files/pki_files/files/keydist /etc/puppetlabs/code/environments/production/utils/FakeCA/gencerts_nopass.sh auto `puppet facts | jq -r .values.fqdn`; true
+EOF
+
+run_puppet = <<-EOF
+  /opt/puppetlabs/bin/puppet config set environment #{environment}
+  /opt/puppetlabs/bin/puppet resource service puppetserver ensure=running
+
+  /opt/puppetlabs/bin/puppet agent -t
+  /opt/puppetlabs/bin/puppet agent -t
+  /opt/puppetlabs/bin/puppet agent -t
+EOF
 
 Vagrant.configure('2') do |config|
   config.vm.box = 'centos/7'
@@ -12,9 +44,9 @@ Vagrant.configure('2') do |config|
   # config.vm.network 'private_network', ip: '192.168.33.10'
 
   config.vm.synced_folder '.',
-    "/etc/puppetlabs/code/environments/#{ENVIRONMENT}",
+    "/etc/puppetlabs/code/environments/#{environment}",
     type: 'rsync',
-    rsync__exclude: ['.git/','Gemfile.lock'],
+    rsync__exclude: ['.git/','dist/','Gemfile.lock'],
     rsync__auto: true
 
   config.vm.provider 'virtualbox' do |vb|  #
@@ -22,32 +54,10 @@ Vagrant.configure('2') do |config|
     vb.cpus   = '2'
   end
 
-  config.vm.provision 'shell', inline: <<-SHELL
-    sudo yum install http://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm
-    sudo curl -s https://packagecloud.io/install/repositories/simp-project/6_X_Dependencies/script.rpm.sh | bash
-    sudo yum install -y vim git epel-release puppet-agent puppetserver
+  config.vm.provision 'shell', name: 'Deps and repos', inline: deps_and_repos
+  config.vm.provision 'shell', name: 'Bootstrap Puppetserver', inline: bootstrap_puppetserver, keep_color: true
+  config.vm.provision :reload, name: 'Apply kernel params'
+  config.vm.provision 'shell', name: 'Keydist', inline: generate_keydist
+  config.vm.provision 'shell', name: 'Run Puppet', inline: run_puppet, keep_color: true
 
-    sudo chown -R root.puppet /etc/puppetlabs/code/environments/#{ENVIRONMENT}
-    sudo chmod -R u+rX /etc/puppetlabs/code/environments/#{ENVIRONMENT}
-    # sudo chown -R puppet.puppet /etc/puppetlabs/code/environments/#{ENVIRONMENT}/simp_autofiles
-  SHELL
-
-  config.vm.provision 'shell', inline: <<-SHELL
-    sudo /opt/puppetlabs/bin/puppet apply -t /etc/puppetlabs/code/#{ENVIRONMENT}/site/profiles/manifests/puppetserver.pp -e "include 'profiles::puppetserver'"
-
-  SHELL
-
-
-  config.vm.provision 'shell', inline: <<-SHELL
-    # sudo /opt/puppetlabs/bin/puppet resource package r10k ensure=latest provider=puppet_gem
-    # cd /etc/puppetlabs/code/environments/#{ENVIRONMENT}
-    # sudo /opt/puppetlabs/puppet/bin/r10k puppetfile install
-
-    sudo mkdir /opt/puppetlabs/puppet/cache/pserver_tmp
-    # sudo /opt/puppetlabs/bin/puppet config --section=master set autosign true
-    sudo /opt/puppetlabs/bin/puppet config set environment #{ENVIRONMENT}
-    # sudo /opt/puppetlabs/bin/puppet resource service puppetserver ensure=running
-
-    sudo /opt/puppetlabs/bin/puppet agent -t
-  SHELL
 end

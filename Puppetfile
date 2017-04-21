@@ -1,3 +1,6 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
 forge "http://forge.puppetlabs.com"
 
 
@@ -20,4 +23,3 @@ mod "puppetlabs/concat",      '2.1.0'
 mod 'virtualbox',
   :git    => 'https://github.com/voxpupuli/puppet-virtualbox.git',
   :ref    => 'v1.8.0'
-
