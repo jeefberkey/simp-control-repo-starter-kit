@@ -46,4 +46,3 @@ classes:
   - 'simp::server'
   - 'simp::puppetdb'
   - 'pupmod'
-  - profiles::puppetserver

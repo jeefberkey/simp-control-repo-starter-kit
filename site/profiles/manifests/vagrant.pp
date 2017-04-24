@@ -1,24 +1,15 @@
 #
 class profiles::vagrant {
   # Maintain connection to the VM
-  pam::access::rule { 'vagrant_all':
+  pam::access::rule { 'vagrant':
     users      => ['vagrant'],
     permission => '+',
     origins    => ['ALL'],
   }
-  sudo::user_specification { 'vagrant':
-    user_list => ['vagrant'],
+  sudo::user_specification { 'vagrant_root_all':
+    user_list => ['vagrant','root'],
     cmnd      => ['ALL'],
     passwd    => false,
-  }
-  sshd_config { 'PermitRootLogin'    : value => 'yes' }
-  sshd_config { 'AuthorizedKeysFile' : value => '.ssh/authorized_keys' }
-  include 'tcpwrappers'
-  include 'iptables'
-  tcpwrappers::allow { 'sshd': pattern => 'ALL' }
-  iptables::listen::tcp_stateful { 'allow_ssh':
-    trusted_nets => ['ALL'],
-    dports       => 22,
   }
 
   package { 'epel-release': ensure => latest }

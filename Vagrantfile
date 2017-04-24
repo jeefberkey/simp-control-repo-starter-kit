@@ -18,8 +18,8 @@ bootstrap_puppetserver = <<-EOF
   sudo chown puppet.puppet /var/log/puppetlabs/puppetserver
   sudo chown puppet.puppet /var/run/puppetlabs/puppetserver
   mkdir -p /opt/puppetlabs/puppet/cache/pserver_tmp
-  sudo /opt/puppetlabs/bin/puppet apply -t /etc/puppetlabs/code/#{environment}/site/profiles/manifests/puppetserver.pp -e "include 'profiles::puppetserver','profiles::vagrant'"
-  sudo /opt/puppetlabs/bin/puppet apply -t /etc/puppetlabs/code/#{environment}/site/profiles/manifests/puppetserver.pp -e "include 'profiles::puppetserver','profiles::vagrant'"
+  sudo /opt/puppetlabs/bin/puppet apply -t /etc/puppetlabs/code/#{environment}/site/profiles/manifests/puppetserver_bootstrap.pp -e "include 'profiles::puppetserver_bootstrap','profiles::vagrant','simp::puppetdb'"
+  sudo /opt/puppetlabs/bin/puppet apply -t /etc/puppetlabs/code/#{environment}/site/profiles/manifests/puppetserver_bootstrap.pp -e "include 'profiles::puppetserver_bootstrap','profiles::vagrant','simp::puppetdb'"
   true
 EOF
 
@@ -56,8 +56,9 @@ Vagrant.configure('2') do |config|
 
   config.vm.provision 'shell', name: 'Deps and repos', inline: deps_and_repos
   config.vm.provision 'shell', name: 'Bootstrap Puppetserver', inline: bootstrap_puppetserver, keep_color: true
-  config.vm.provision :reload, name: 'Apply kernel params'
   config.vm.provision 'shell', name: 'Keydist', inline: generate_keydist
+  config.vm.provision 'shell', name: 'Run Puppet', inline: run_puppet, keep_color: true
+  config.vm.provision :reload, name: 'Apply kernel params'
   config.vm.provision 'shell', name: 'Run Puppet', inline: run_puppet, keep_color: true
 
 end
