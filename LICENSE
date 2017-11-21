@@ -1,5 +1,6 @@
 simp-control-repo-starter-kit - A simple SIMP Puppet control repository example
 
+<<<<<<< HEAD
 --
 
 Per Section 105 of the Copyright Act of 1976, these works are not entitled to
@@ -12,6 +13,8 @@ The United States Government has unlimited rights in this software and all
 derivatives thereof, pursuant to the contracts under which it was developed and
 the License under which it falls.
 
+=======
+>>>>>>> e2138d017e7edf1ddf1a2f04340aae17cd295eb8
 ---
 
 Licensed under the Apache License, Version 2.0 (the "License");
